@@ -1,0 +1,23 @@
+FROM gradle:7-jammy as builder
+WORKDIR /hello-app
+COPY build.gradle .
+COPY src src 
+RUN gradle build
+
+FROM openjdk:22-slim
+LABEL descripion="Simple Java Spring application with one endpoint - GET /greetings"
+LABEL author="Martins T."
+COPY --from=builder /hello-app/build/libs/hello-app-0.0.1-SNAPSHOT.jar hello-app.jar
+EXPOSE 8080
+CMD ["java", "-jar", "hello-app.jar"]
+
+# First stage:
+#  gradle:7-jammy used as base image
+# All required code is copied
+# Command “gradle build” is executed, so that there is build available
+
+# Next stage:
+# E.g. openjdk:22-oracle image is used as base
+# Artifacts from first stage is copied
+# Expose command defined to specify port which needs to be exposed (8080)
+# Java command executed to run build
